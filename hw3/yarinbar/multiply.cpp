@@ -3,6 +3,7 @@
 
 Matrix multiply(const Matrix a, const Matrix b){
 
+    // check for dim compatibility
     if(a.ncol != b.nrows)
         return nullptr;
 
