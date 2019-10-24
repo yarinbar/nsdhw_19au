@@ -7,7 +7,7 @@ Matrix multiply(const Matrix a, const Matrix b){
     if(a.ncol() != b.nrow())
         return nullptr;
 
-    Matrix c(a.nrows(), b.ncols());
+    Matrix c(a.nrow(), b.ncol());
 
     for(unsigned int i = 0; i < a.ncol(); ++i)
         for(unsigned int j = 0; j < a.ncol(); ++j) {
