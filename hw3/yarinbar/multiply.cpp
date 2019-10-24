@@ -4,7 +4,7 @@
 Matrix multiply(const Matrix a, const Matrix b){
 
     // check for dim compatibility
-    if(a.ncol != b.nrows)
+    if(a.ncol() != b.nrow())
         return nullptr;
 
     Matrix c(a.nrows(), b.ncols());
