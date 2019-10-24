@@ -1,7 +1,7 @@
 
 #include "matrix.hpp"
 
-Matrix* multiply(const Matrix const& a, const Matrix const& b){
+Matrix* multiply(const Matrix& a, const Matrix& b){
 
     // check for dim compatibility
     if(a.ncol() != b.nrow())
