@@ -1,13 +1,13 @@
 
 #include "matrix.hpp"
 
-Matrix* multiply(const Matrix a, const Matrix b){
+Matrix* multiply(const Matrix const& a, const Matrix const& b){
 
     // check for dim compatibility
     if(a.ncol() != b.nrow())
         return nullptr;
 
-    Matrix* c(a.nrow(), b.ncol());
+    Matrix* c = new Matrix(a.nrow(), b.ncol());
 
     for(unsigned int i = 0; i < a.ncol(); ++i)
         for(unsigned int j = 0; j < a.ncol(); ++j) {
