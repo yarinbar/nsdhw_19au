@@ -11,9 +11,9 @@ Matrix* multiply(const Matrix& a, const Matrix& b){
 
     for(unsigned int i = 0; i < a.ncol(); ++i)
         for(unsigned int j = 0; j < a.ncol(); ++j) {
-            c(i, j) = 0;
+            c->operator(i, j) = 0;
             for(unsigned int k = 0; k < a.ncol(); k++)
-                c(i, j) += a(i, k) * b(k, j);
+                c->operator(i, j) += a(i, k) * b(k, j);
         }
     return c;
 }
