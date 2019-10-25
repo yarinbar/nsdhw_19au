@@ -1,10 +1,10 @@
 
 CC=g++
 FLAGS=-Wall -std=c++11 -shared -Werror -fPIC -pedantic-errors `python3 -m pybind11 --includes`
-OBJS=matrix.hpp multiply.cpp
+OBJS=matrix.hpp
 
 all:
-	${CC} ${FLAGS} ${OBJS} -o multiply`python3-config --extension-suffix`
+	${CC} ${FLAGS} ${OBJS} -o matrix`python3-config --extension-suffix`
 
 
 test:
@@ -15,5 +15,5 @@ clean:
 	echo Cleaning
 	rm -f multiply.o matrix.o
 	rm -f multiply`python3-config --extension-suffix` __pycache__
-	${CC} ${FLAGS} ${OBJS} -o multiply`python3-config --extension-suffix`
+	${CC} ${FLAGS} ${OBJS} -o matrix`python3-config --extension-suffix`
 
