@@ -1,19 +1,19 @@
 
 #include "matrix.hpp"
 
-Matrix* multiply(const Matrix& a, const Matrix& b){
+Matrix multiply(const Matrix& a, const Matrix& b){
 
     // check for dim compatibility
     if(a.ncol() != b.nrow())
         return nullptr;
 
-    Matrix* c = new Matrix(a.nrow(), b.ncol());
+    Matrix c(a.nrow(), b.ncol());
 
     for(unsigned int i = 0; i < a.ncol(); ++i)
         for(unsigned int j = 0; j < a.ncol(); ++j) {
-            c->operator(i, j) = 0;
+            c(i, j) = 0;
             for(unsigned int k = 0; k < a.ncol(); k++)
-                c->operator(i, j) += a(i, k) * b(k, j);
+                c(i, j) += a(i, k) * b(k, j);
         }
     return c;
 }
