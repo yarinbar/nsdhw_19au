@@ -68,7 +68,7 @@ PYBIND11_MODULE(_matrix, m) {
     py::class_<Matrix>(m, "Matrix")
         .def(py::init<size_t, size_t>());
 
-    _mod.def("multiply_naive", &multiply_naive, "");
+    m.def("multiply_naive", &multiply_naive, "");
 }
 
 
