@@ -19,5 +19,6 @@ Matrix multiply(const Matrix& a, const Matrix& b){
 }
 
 PYBIND11_MODULE(multiply, mod){
+    mod.doc() = "multiply";
     mod.def("multiply", &multiply, "");
 }
