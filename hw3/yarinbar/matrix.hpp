@@ -66,9 +66,9 @@ Matrix multiply_naive(const Matrix& a, const Matrix& b){
 
 PYBIND11_MODULE(_matrix, m) {
     py::class_<Matrix>(m, "Matrix")
-        .def(py::init(size_t nrow, size_t ncol));
+        .def(py::init<size_t, size_t>());
 
-    mod.def("multiply_naive", &multiply_naive, "");
+    _mod.def("multiply_naive", &multiply_naive, "");
 }
 
 
