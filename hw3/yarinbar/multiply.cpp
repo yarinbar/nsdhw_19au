@@ -5,7 +5,7 @@ Matrix multiply(const Matrix& a, const Matrix& b){
 
     // check for dim compatibility
     if(a.ncol() != b.nrow())
-        return nullptr;
+        throw "sizes dont match!";
 
     Matrix c(a.nrow(), b.ncol());
 
