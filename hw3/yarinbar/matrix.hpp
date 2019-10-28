@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <mkl.h>
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
@@ -47,7 +48,7 @@ void work(Matrix & matrix)
     }
 }
 
-Matrix multiply_naive(const Matrix& a, const Matrix& b){
+Matrix multiply_naive(Matrix const& a, Matrix const& b){
 
     // check for dim compatibility
     if(a.ncol() != b.nrow())
@@ -55,13 +56,26 @@ Matrix multiply_naive(const Matrix& a, const Matrix& b){
 
     Matrix c(a.nrow(), b.ncol());
 
-    for(unsigned int i = 0; i < a.ncol(); ++i)
-        for(unsigned int j = 0; j < a.ncol(); ++j) {
+    for(unsigned int i = 0; i < a.nrow(); ++i)
+        for(unsigned int j = 0; j < b.ncol(); ++j) {
             c(i, j) = 0;
             for(unsigned int k = 0; k < a.ncol(); k++)
                 c(i, j) += a(i, k) * b(k, j);
         }
     return c;
+}
+
+Matrix multiply_mkl(const Matrix& a, const Matrix& b){
+	
+	// check for dim compatibility
+    if(a.ncol() != b.nrow())
+        throw "sizes dont match!";
+	
+	Matrix c(a.nrow(), b.ncol());
+	
+	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a.nrow(), b.ncol(), a.ncol(), 1, a, a.ncol(), b, b.ncol(), c, c.ncol());
+	
+	return c;
 }
 
 PYBIND11_MODULE(_matrix, m) {
