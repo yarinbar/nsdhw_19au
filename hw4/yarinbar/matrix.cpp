@@ -1,5 +1,3 @@
-#include "StopWatch.hpp"
-
 #include <mkl.h>
 
 #include <iostream>
@@ -12,9 +10,8 @@
 struct Matrix {
 
 public:
-	
-	Matrix() = delete;
-	
+    
+    Matrix() = delete;
     Matrix(size_t nrow, size_t ncol)
       : m_nrow(nrow), m_ncol(ncol)
     {
@@ -216,9 +213,6 @@ Matrix multiply_mkl(Matrix const & mat1, Matrix const & mat2){
     mkl_set_num_threads(1);
 
     Matrix ret(mat1.nrow(), mat2.ncol());
-
-    StopWatch sw;
-
     cblas_dgemm(
         CblasRowMajor /* const CBLAS_LAYOUT Layout */
       , CblasNoTrans /* const CBLAS_TRANSPOSE transa */
@@ -236,7 +230,6 @@ Matrix multiply_mkl(Matrix const & mat1, Matrix const & mat2){
       , ret.ncol() /* const MKL_INT ldc */
     );
 
-    ret.elapsed() = sw.lap();
     ret.nflo() = calc_nflo(mat1, mat2);
 
     return ret;
@@ -250,8 +243,6 @@ Matrix multiply_naive(Matrix const & mat1, Matrix const & mat2){
 
     Matrix ret(mat1.nrow(), mat2.ncol());
 
-    StopWatch sw;
-
     for (size_t i=0; i<mat1.nrow(); ++i)
     {
         for (size_t k=0; k<mat2.ncol(); ++k)
@@ -264,8 +255,6 @@ Matrix multiply_naive(Matrix const & mat1, Matrix const & mat2){
             ret(i,k) = v;
         }
     }
-
-    ret.elapsed() = sw.lap();
     ret.nflo() = calc_nflo(mat1, mat2);
 
     return ret;
