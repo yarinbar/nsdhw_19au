@@ -1,11 +1,13 @@
 #include <mkl.h>
-
+#include <pybind11/pybind11.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <vector>
 #include <stdexcept>
 #include <functional>
+
+namespace py = pybind11;
 
 struct Matrix {
 
@@ -278,3 +280,23 @@ void initialize(Matrix & mat)
         }
     }
 }
+
+PYBIND11_MODULE(_matrix, m) {
+
+  py::class_<Matrix>(m, "Matrix")
+      .def(py::init<size_t, size_t>())
+      .def_property_readonly("nrow", &Matrix::nrow)
+      .def_property_readonly("ncol", &Matrix::ncol)
+      .def("__eq__", [](Matrix &a, Matrix &b) { return a == b; })
+      .def("__getitem__",
+           [](Matrix &m, std::pair<size_t, size_t> i) {
+             return m(i.first, i.second);
+           })
+      .def("__setitem__", [](Matrix &m, std::pair<size_t, size_t> i,
+                             double v) { m(i.first, i.second) = v; })
+      .def("__repr__", &Matrix::show);
+
+  m.def("multiply_naive", &multiply_naive, "naive");
+  m.def("multiply_mkl", &multiply_mkl, "mkl");
+}
+
