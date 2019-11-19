@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <mkl.h>
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
@@ -28,11 +29,10 @@ public:
     size_t nrow() const { return m_nrow; }
     size_t ncol() const { return m_ncol; }
 
-private:
 
     size_t m_nrow;
     size_t m_ncol;
-    double * m_buffer;
+    double * m_buffer = nullptr;
 
 };
 
@@ -47,7 +47,7 @@ void work(Matrix & matrix)
     }
 }
 
-Matrix multiply_naive(const Matrix& a, const Matrix& b){
+Matrix multiply_naive(Matrix const& a, Matrix const& b){
 
     // check for dim compatibility
     if(a.ncol() != b.nrow())
@@ -55,8 +55,8 @@ Matrix multiply_naive(const Matrix& a, const Matrix& b){
 
     Matrix c(a.nrow(), b.ncol());
 
-    for(unsigned int i = 0; i < a.ncol(); ++i)
-        for(unsigned int j = 0; j < a.ncol(); ++j) {
+    for(unsigned int i = 0; i < a.nrow(); ++i)
+        for(unsigned int j = 0; j < b.ncol(); ++j) {
             c(i, j) = 0;
             for(unsigned int k = 0; k < a.ncol(); k++)
                 c(i, j) += a(i, k) * b(k, j);
@@ -64,13 +64,30 @@ Matrix multiply_naive(const Matrix& a, const Matrix& b){
     return c;
 }
 
-PYBIND11_MODULE(_matrix, m) {
-    py::class_<Matrix>(m, "Matrix")
-        .def(py::init<size_t, size_t>());
+Matrix multiply_mkl(const Matrix& a, const Matrix& b){
 
-    m.def("multiply_naive", &multiply_naive, "");
+	// check for dim compatibility
+    if(a.ncol() != b.nrow()){
+        throw "sizes dont match!";
+    }
+
+	Matrix c(a.nrow(), b.ncol());
+	cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a.nrow(), b.ncol(), a.ncol(), 1.0, a.m_buffer, a.ncol(), b.m_buffer, b.ncol(), 0.0, c.m_buffer, c.ncol());
+
+	return c;
 }
 
+PYBIND11_MODULE(_matrix, m) {
+    py::class_<Matrix>(m, "Matrix")
+        .def(py::init<size_t, size_t>())
+        .def("nrow", &Matrix::nrow)
+        .def("ncol", &Matrix::ncol);
+
+    m.doc() = "matrix multiplication";
+
+    m.def("multiply_naive", &multiply_naive, "");
+    m.def("multiply_mkl", &multiply_mkl, "");
+}
 
 /*
 
