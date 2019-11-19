@@ -6,9 +6,9 @@ SUFFIX = $(shell python3-config --extension-suffix)
 TARGET = _matrix$(SUFFIX)
 
 
-MKLROOT ?= ${HOME}/opt/conda
-INCLUDES += -m64 -I${MKLROOT}/include
-LDFLAGS += -L${MKLROOT}/lib -Wl,--no-as-needed \
+MKLPATH ?= ${HOME}/opt/conda
+INCLUDES += -m64 -I${MKLPATH}/include
+LDFLAGS += -L${MKLPATH}/lib -Wl,--no-as-needed \
 	-lmkl_rt -lpthread -lm -ldl
 
 INCLUDES += `python -m pybind11 --includes`
@@ -21,7 +21,7 @@ $(TARGET): $(FILE)
 	$(CXX) $(FLAGS) $(INCLUDES) $< -o $(TARGET) $(LDFLAGS)
 
 
-
 .PHONY: clean
 clean:
-	rm -rf $(TARGET)
+	rm -rf $(TARGET) 
+	rm *.$(SUFFIX)
