@@ -298,7 +298,7 @@ Matrix multiply_tile(Matrix const & A, Matrix const & B, size_t tile_size){
                 for (size_t j1 = j0; j1 < jmax; ++j1) {
                     for (size_t i1 = i0; i1 < imax; ++i1) {
                         for (size_t k1 = k0; k1 < kmax; ++k1) {
-                            C(i1, kmax) += A(i1, j1) * B(j1, kmax);
+                            C(i1, k1) += A(i1, j1) * B(j1, k1);
                         }
                     }
                 }
@@ -344,5 +344,6 @@ PYBIND11_MODULE(_matrix, m) {
 
   m.def("multiply_naive", &multiply_naive, "naive");
   m.def("multiply_mkl", &multiply_mkl, "mkl");
+  m.def("multiply_tile", &multiply_tile, "tile");
 }
 

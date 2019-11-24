@@ -25,7 +25,7 @@ CXXFLAGS += -shared -fPIC
 all: $(TARGET)
 
 $(TARGET): $(FILE)
-	$(CXX) $(FLAGS) $^ $(INCLUDES) -o $@
+	$(CXX) $(FLAGS) $(INCLUDES) $^ -o $@ $(LDFLAGS)
 
 
 .PHONY: clean
