@@ -262,6 +262,57 @@ Matrix multiply_naive(Matrix const & mat1, Matrix const & mat2){
     return ret;
 }
 
+Matrix multiply_tile(Matrix const & A, Matrix const & B, size_t tile_size){
+	
+	if (A.ncol() != B.nrow()){
+		throw "matrix sizes cant be multiplied";
+	}
+	
+	if (tile_size <= 0){
+		throw "tile size must be a positive number";
+	}
+	
+	row = A.nrow()
+	col = B.ncol()
+	Matrix C(row, col);
+	
+	// setting the matrix to 0
+	for(int i = 0; i < row; ++i){
+		for(int j = 0; j < col; ++j){
+			C(i, j) = 0
+		}
+	}
+	
+	size_t I = A.nrow();
+	size_t J = A.nrow();
+	size_t K = B.nrow();
+	
+	for (int i0 = 0; i0 < I; i0 += tile_size) {
+        int imax = i0 + tile_size > I ? I : i0 + tile_size;
+
+        for (int j0 = 0; j0 < J; j0 += tile_size) {
+            int jmax = j0 + tile_size > J ? J : j0 + tile_size;
+
+            for (int k0 = 0; k0 < K; k0 += tile_size) {
+                int kmax = k0 + tile_size > K ? K : k0 + tile_size;
+
+                for (int j1 = j0; j1 < jmax; ++j1) {
+                    int sj = J * j1;
+
+                    for (int i1 = i0; i1 < imax; ++i1) {
+
+                        for (int k1 = k0; k1 < kmax; ++k1) {
+                            C(i1, kmax) += A(i1, j1) * B(j1, kmax);
+                        }
+                    }
+                }
+            }
+        }
+    }
+	
+	return C;
+}
+
 
 void initialize(Matrix & mat)
 {

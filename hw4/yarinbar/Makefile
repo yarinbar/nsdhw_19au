@@ -1,6 +1,6 @@
 
 CXX := g++
-FLAGS ?= -std=c++17 -O3 -Wall
+FLAGS ?= -std=c++17 -O3 -g -m64 -Wall -shared -fPIC
 FILE = matrix.cpp
 SUFFIX = $(shell python3-config --extension-suffix)
 TARGET = _matrix$(SUFFIX)
@@ -18,7 +18,7 @@ CXXFLAGS += -shared -fPIC
 all: $(TARGET)
 
 $(TARGET): $(FILE)
-	$(CXX) $(FLAGS) $(INCLUDES) $< -o $(TARGET) $(LDFLAGS)
+	$(CXX) $(FLAGS) $(INCLUDES) $< $(TARGET) -o $(LDFLAGS)
 
 
 .PHONY: clean
