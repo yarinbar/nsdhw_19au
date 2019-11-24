@@ -263,45 +263,41 @@ Matrix multiply_naive(Matrix const & mat1, Matrix const & mat2){
 }
 
 Matrix multiply_tile(Matrix const & A, Matrix const & B, size_t tile_size){
-	
+
 	if (A.ncol() != B.nrow()){
 		throw "matrix sizes cant be multiplied";
 	}
-	
+
 	if (tile_size <= 0){
 		throw "tile size must be a positive number";
 	}
-	
-	row = A.nrow()
-	col = B.ncol()
+
+	size_t row = A.nrow();
+	size_t col = B.ncol();
 	Matrix C(row, col);
-	
+
 	// setting the matrix to 0
-	for(int i = 0; i < row; ++i){
-		for(int j = 0; j < col; ++j){
-			C(i, j) = 0
+	for(size_t i = 0; i < row; ++i){
+		for(size_t j = 0; j < col; ++j){
+			C(i, j) = 0;
 		}
 	}
-	
+
 	size_t I = A.nrow();
 	size_t J = A.nrow();
 	size_t K = B.nrow();
-	
-	for (int i0 = 0; i0 < I; i0 += tile_size) {
-        int imax = i0 + tile_size > I ? I : i0 + tile_size;
 
-        for (int j0 = 0; j0 < J; j0 += tile_size) {
-            int jmax = j0 + tile_size > J ? J : j0 + tile_size;
+	for (size_t i0 = 0; i0 < I; i0 += tile_size) {
+        size_t imax = i0 + tile_size > I ? I : i0 + tile_size;
 
-            for (int k0 = 0; k0 < K; k0 += tile_size) {
-                int kmax = k0 + tile_size > K ? K : k0 + tile_size;
+        for (size_t j0 = 0; j0 < J; j0 += tile_size) {
+            size_t jmax = j0 + tile_size > J ? J : j0 + tile_size;
 
-                for (int j1 = j0; j1 < jmax; ++j1) {
-                    int sj = J * j1;
-
-                    for (int i1 = i0; i1 < imax; ++i1) {
-
-                        for (int k1 = k0; k1 < kmax; ++k1) {
+            for (size_t k0 = 0; k0 < K; k0 += tile_size) {
+                size_t kmax = k0 + tile_size > K ? K : k0 + tile_size;
+                for (size_t j1 = j0; j1 < jmax; ++j1) {
+                    for (size_t i1 = i0; i1 < imax; ++i1) {
+                        for (size_t k1 = k0; k1 < kmax; ++k1) {
                             C(i1, kmax) += A(i1, j1) * B(j1, kmax);
                         }
                     }
@@ -344,8 +340,7 @@ PYBIND11_MODULE(_matrix, m) {
              return m(i.first, i.second);
            })
       .def("__setitem__", [](Matrix &m, std::pair<size_t, size_t> i,
-                             double v) { m(i.first, i.second) = v; })
-      .def("__repr__", &Matrix::show);
+                             double v) { m(i.first, i.second) = v; });
 
   m.def("multiply_naive", &multiply_naive, "naive");
   m.def("multiply_mkl", &multiply_mkl, "mkl");
