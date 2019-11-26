@@ -39,7 +39,6 @@ exit 0
 ':'''
 
 import unittest
-
 # The python module that wraps the matrix code.
 import _matrix
 
