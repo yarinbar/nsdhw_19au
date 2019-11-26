@@ -27,7 +27,15 @@ all: $(TARGET)
 $(TARGET): $(FILE)
 	$(CXX) $(FLAGS) $(INCLUDES) $^ -o $@ $(LDFLAGS)
 
+.PHONY: test
+test: $(TARGET) test.py
+	pytest -sv test.py 
 
+.PHONY: bench
+test: $(TARGET) bench.py
+	python3 bench.py > performance.txt
+	
 .PHONY: clean
 clean:
 	rm -f *.so
+	rm -f performance.txt
