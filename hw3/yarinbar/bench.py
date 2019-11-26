@@ -6,10 +6,10 @@ if __name__ == '__main__':
 
     A = _matrix.Matrix(1024, 1024)
     B = _matrix.Matrix(1024, 1024)
-	
+
     for i in range(1024):
         for j in range(1024):
-			num = random()
+            num = random()
             A[i, j] = num
             B[i, j] = num
 

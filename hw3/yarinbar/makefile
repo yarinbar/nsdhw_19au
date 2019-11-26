@@ -21,21 +21,18 @@ LDFLAGS += -L${MKLPATH}/lib -Wl,--no-as-needed \
 INCLUDES += `python -m pybind11 --includes`
 CXXFLAGS += -shared -fPIC
 
-.PHONY: all
+.PHONY: all test bench clean
 all: $(TARGET)
 
 $(TARGET): $(FILE)
 	$(CXX) $(FLAGS) $(INCLUDES) $^ -o $@ $(LDFLAGS)
 
-.PHONY: test
 test: $(TARGET) test.py
-	pytest -sv test.py 
+	pytest -sv test.py
 
-.PHONY: bench
-test: $(TARGET) bench.py
+bench: $(TARGET) bench.py
 	python3 bench.py > performance.txt
-	
-.PHONY: clean
+
 clean:
 	rm -f *.so
 	rm -f performance.txt

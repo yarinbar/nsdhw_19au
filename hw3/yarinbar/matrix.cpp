@@ -230,7 +230,7 @@ Matrix multiply_mkl(const Matrix& A, const Matrix& B){
         throw "sizes dont match!";
     }
 
-	Matrix C(a.nrow(), b.ncol());
+	Matrix C(A.nrow(), B.ncol());
 
     mkl_set_num_threads(1);
 	
