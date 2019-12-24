@@ -3,10 +3,10 @@
 ''':'
 test_path="${BASH_SOURCE[0]}"
 
-if [[ (-n "$PRELOAD_MKL") && ("Linux" == "$(uname)") ]] ; then
+#if [[ (-n "$PRELOAD_MKL") && ("Linux" == "$(uname)") ]] ; then
     # Workaround for cmake + MKL in conda.
-    MKL_ROOT=$HOME/opt/conda
-    MKL_LIB_DIR=$MKL_ROOT/lib
+    MKL_ROOT=/opt/intel/mkl
+    MKL_LIB_DIR=$MKL_ROOT/lib/intel64
     MKL_LIBS=$MKL_LIB_DIR/libmkl_def.so
     MKL_LIBS=$MKL_LIBS:$MKL_LIB_DIR/libmkl_avx2.so
     MKL_LIBS=$MKL_LIBS:$MKL_LIB_DIR/libmkl_core.so
@@ -14,31 +14,43 @@ if [[ (-n "$PRELOAD_MKL") && ("Linux" == "$(uname)") ]] ; then
     MKL_LIBS=$MKL_LIBS:$MKL_LIB_DIR/libmkl_sequential.so
     export LD_PRELOAD=$MKL_LIBS
     echo "set LD_PRELOAD=$LD_PRELOAD for MKL"
-else
-    echo "set PRELOAD_MKL if you see (Linux) MKL linking error"
-fi
+#else
+#    echo "set PRELOAD_MKL if you see (Linux) MKL linking error"
+#fi
 
 fail_msg="*** validation failed"
 
-make clean ; ret=$?
-if [ 0 -ne $ret ] ; then echo "$fail_msg" ; exit $ret ; fi
+# SKIP_CLEAN will not be set during grading.
+if [ -z "$SKIP_CLEAN" ] ; then
+    make clean ; ret=$?
+    if [ 0 -ne $ret ] ; then echo "$fail_msg" ; exit $ret ; fi
 
-if [ -n "$(ls _matrix*.so 2> /dev/null)" ] ; then
-    echo "$fail_msg for uncleanness"
-    exit 1
+    if [ -n "$(ls _matrix*.so 2> /dev/null)" ] ; then
+        echo "$fail_msg for uncleanness"
+        exit 1
+    fi
+    echo "GET POINT 1"
 fi
 
-make test ; ret=$?
+make ; ret=$?
 if [ 0 -ne $ret ] ; then echo "$fail_msg" ; exit $ret ; fi
+if [ -z "$SKIP_CLEAN" ] ; then
+    echo "GET POINT 1"
+fi
 
 python3 -m pytest $test_path -v -s ; ret=$?
 if [ 0 -ne $ret ] ; then echo "$fail_msg" ; exit $ret ; fi
 
 echo "validation pass"
+if [ -z "$SKIP_CLEAN" ] ; then
+    echo "GET POINT 3"
+fi
 exit 0
 ':'''
 
 import unittest
+import timeit
+import os
 
 # The python module that wraps the matrix code.
 import _matrix
@@ -121,5 +133,58 @@ class GradingTest(unittest.TestCase):
             for j in range(ret_naive.ncol):
                 self.assertEqual(0, ret_naive[i,j])
                 self.assertEqual(0, ret_mkl[i,j])
+
+    def check_tile(self, mat1, mat2, tsize):
+
+        if 0 == tsize:
+            ret_tile = _matrix.multiply_naive(mat1, mat2)
+            tile_str = "_matrix.multiply_naive(mat1, mat2)"
+        else:
+            ret_tile = _matrix.multiply_tile(mat1, mat2, tsize)
+            tile_str = "_matrix.multiply_tile(mat1, mat2, tsize)"
+        ret_mkl = _matrix.multiply_mkl(mat1, mat2)
+
+        for i in range(ret_tile.nrow):
+            for j in range(ret_tile.ncol):
+                self.assertNotEqual(mat1[i,j], ret_mkl[i,j])
+                self.assertEqual(ret_tile[i,j], ret_mkl[i,j])
+
+        ns = dict(_matrix=_matrix, mat1=mat1, mat2=mat2, tsize=tsize)
+        t_tile = timeit.Timer(tile_str, globals=ns)
+        t_mkl = timeit.Timer('_matrix.multiply_mkl(mat1, mat2)', globals=ns)
+
+        time_tile = min(t_tile.repeat(10, 1))
+        time_mkl = min(t_mkl.repeat(10, 1))
+        ratio = time_tile/time_mkl
+
+        return ratio, time_tile
+
+    def test_tile(self):
+
+        show_ratio = bool(os.environ.get('SHOW_RATIO', False))
+
+        mat1, mat2, *_ = self.make_matrices(500)
+
+        ratio0, time0 = self.check_tile(mat1, mat2, 0)
+        if show_ratio:
+            print("naive ratio:", ratio0)
+
+        ratio16, time16 = self.check_tile(mat1, mat2, 16)
+        if show_ratio:
+            print("tile 16 ratio:", ratio16)
+            print("time16/time0:", time16/time0)
+        self.assertLess(ratio16/ratio0, 0.8)
+
+        ratio17, time17 = self.check_tile(mat1, mat2, 17)
+        if show_ratio:
+            print("tile 17 ratio:", ratio17)
+            print("time17/time0:", time17/time0)
+        self.assertLess(ratio17/ratio0, 0.8)
+
+        ratio19, time19 = self.check_tile(mat1, mat2, 19)
+        if show_ratio:
+            print("tile 19 ratio:", ratio19)
+            print("time19/time0:", time19/time0)
+        self.assertLess(ratio19/ratio0, 0.8)
 
 # vim: set fenc=utf8 ff=unix et sw=4 ts=4 sts=4:

@@ -1,0 +1,19 @@
+#! /usr/bin/env python3
+
+import sys
+import subprocess
+import pathlib
+import os
+
+assert sys.version_info >= (3, 4)
+filepath = os.path.realpath(__file__)
+
+docker_img = 'ianre657/nsd-env'
+
+def main():
+  cwd = os.path.dirname(filepath)
+  cwd = os.getcwd()
+  os.system(f'docker run --rm -it -v {cwd}:/home/ubuntu/nsd_hw {docker_img}')
+
+if __name__ == "__main__":
+  main()
